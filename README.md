@@ -1,13 +1,13 @@
 # UYAN 😴➜⏰
 
-Bilgisayarının kamerasıyla seni izler. **Gözlerin birkaç saniyeden uzun kapalı kalırsa ya da yüzün 10 saniye kameradan kaybolursa** (yani uyuyakalırsan) **kulaklığından / hoparlöründen gittikçe yükselen bir alarm** çalar. Gözlerini 2 saniye açık tuttuğunda alarm kendiliğinden susar.
+Bilgisayarının kamerasıyla seni izler. **Gözlerin birkaç saniyeden uzun kapalı kalırsa ya da yüzün / başın 10 saniye kameradan kaybolursa veya öne düşerse** (yani uyuyakalırsan) **kulaklığından / hoparlöründen gittikçe yükselen bir alarm** çalar. Gözlerini 2 saniye açık tuttuğunda alarm kendiliğinden susar.
 
 ## Nasıl çalışır?
 
 1. **Kamera:** Web kameran her kareyi okur (görüntü hiçbir yere gönderilmez, her şey bilgisayarında işlenir).
-2. **Göz takibi:** Google MediaPipe yüz modeli yüzünde 478 nokta bulur. Göz kapaklarının arasındaki mesafeden *göz açıklığı oranı* (EAR) hesaplanır.
-3. **Kalibrasyon:** Program açılınca ilk 3 saniye gözlerin açık kameraya bak; senin gözüne göre "kapalı" eşiği otomatik ayarlanır.
-4. **Alarm:** Gözler `--sure` saniye (varsayılan 3) kapalı kalırsa **veya yüzün `--yuz-yok` saniye (varsayılan 10) hiç görünmezse** (başın masaya düştüyse) alarm çalar. Ses, Windows/Mac'te **varsayılan ses çıkışından** çıkar, yani kulaklık takılıysa kulaklıktan. Ses %30'dan başlayıp ~10 saniyede en yükseğe çıkar, ekran kırmızı yanıp söner ve pencere öne gelir.
+2. **Göz takibi:** Google MediaPipe yüz modeli yüzünde 478 nokta bulur. İki ölçüm birlikte kullanılır: göz kapakları arasındaki mesafe (*göz açıklığı*, EAR) ve modelin kendi *göz kırpma skoru*. Kırpma skoru gözlük parlamasından çok daha az etkilendiği için **gözlükle de** yanlış alarm vermez. Tek karelik hatalar (parlama, anlık titreme) sayaçları sıfırlamaz.
+3. **Kalibrasyon:** Program açılınca "KALİBRASYON BAŞLIYOR" yazar ve kısa bir ses çıkar. Ardından ekranda **3-2-1 geri sayım** olur: bu sürede gözlüğün takılıyken, gözlerin açık düz kameraya bak. Sonunda **BAŞARILI** (yükselen ses) ya da **BAŞARISIZ + sebebi** (kalın ses) yazar; başarısızsa kendiliğinden tekrar dener. Kalibrasyon senin gözüne ve normal baş duruşuna göre eşikleri ayarlar.
+4. **Alarm:** Gözler `--sure` saniye (varsayılan 3) kapalı kalırsa **veya yüzün `--yuz-yok` saniye (varsayılan 10) görünmezse ya da başın kalibrasyondaki duruşa göre 30°'den fazla öne/arkaya düşerse** alarm çalar. Ses, Windows/Mac'te **varsayılan ses çıkışından** çıkar, yani kulaklık takılıysa kulaklıktan. Ses %30'dan başlayıp ~10 saniyede en yükseğe çıkar, ekran kırmızı yanıp söner ve pencere öne gelir.
 5. **Susma:** Gözlerini 2 saniye açık tut → alarm susar. Ya da ekrandaki **SUSTUR** düğmesine tıkla / **BOŞLUK** tuşuna bas. Programı kapatmak için sağ üstteki **KAPAT** düğmesine tıkla.
 
 ## Kurulum
@@ -33,6 +33,7 @@ Kendin exe üretmek istersen Windows'ta `exe_yap.bat`'a çift tıkla → `dist\U
 python uyan.py --sure 5            # 5 saniye göz kapalı kalınca çal
 python uyan.py --yuz-yok 20        # yüz 20 sn görünmezse çal (varsayılan 10)
 python uyan.py --yuz-yok 0         # yüz kaybolunca alarmı kapat
+python uyan.py --bas-acisi 40      # baş 40° düşünce 'baş düştü' say (varsayılan 30, 0 = kapalı)
 python uyan.py --ses alarm.mp3     # kendi alarm sesini (mp3/wav/ogg) kullan
 python uyan.py --ses-seviyesi 0.6  # en yüksek ses seviyesi (0-1)
 python uyan.py --uyanik-sure 3     # alarmın susması için 3 sn gözler açık
@@ -51,7 +52,7 @@ Exe için de aynı: `UYAN.exe --sure 5 --yuz-yok 15`
 ## İpuçları
 - Yüzüne iyi ışık gelsin; karanlıkta kamera gözlerini göremez.
 - Kamera yüzünü önden görsün; çok aşağıdan/yandan açılar hassasiyeti düşürür.
-- Gözlük genelde sorun olmaz, parlama varsa `c` ile yeniden kalibre et.
+- **Gözlük:** Kalibrasyonu mutlaka gözlüğün takılıyken yap. Parlamayı azaltmak için ekran parlaklığını biraz düşür ya da ışığı yandan değil önden al. Gözlüğü taktıysan/çıkardıysan `c` ile yeniden kalibre et.
 - Yanlış alarm çok oluyorsa `--sure` değerini artır; geç algılıyorsa `--esik 0.22` gibi daha yüksek bir eşik dene.
 - Bilgisayarın uyku moduna geçmesin (Güç ayarlarından "Ekranı kapatma / Uyku: Hiçbir zaman").
 - Masadan kalkacaksan programı kapat; yüzün görünmezse 10 sn sonra alarm çalar.
