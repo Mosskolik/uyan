@@ -1,13 +1,13 @@
 # UYAN 😴➜⏰
 
-Bilgisayarının kamerasıyla seni izler. **Gözlerin birkaç saniyeden uzun kapalı kalırsa** (yani uyuyakalırsan) **kulaklığından / hoparlöründen gittikçe yükselen bir alarm** çalar. Gözlerini 2 saniye açık tuttuğunda alarm kendiliğinden susar.
+Bilgisayarının kamerasıyla seni izler. **Gözlerin birkaç saniyeden uzun kapalı kalırsa ya da yüzün 10 saniye kameradan kaybolursa** (yani uyuyakalırsan) **kulaklığından / hoparlöründen gittikçe yükselen bir alarm** çalar. Gözlerini 2 saniye açık tuttuğunda alarm kendiliğinden susar.
 
 ## Nasıl çalışır?
 
 1. **Kamera:** Web kameran her kareyi okur (görüntü hiçbir yere gönderilmez, her şey bilgisayarında işlenir).
 2. **Göz takibi:** Google MediaPipe yüz modeli yüzünde 478 nokta bulur. Göz kapaklarının arasındaki mesafeden *göz açıklığı oranı* (EAR) hesaplanır.
 3. **Kalibrasyon:** Program açılınca ilk 3 saniye gözlerin açık kameraya bak; senin gözüne göre "kapalı" eşiği otomatik ayarlanır.
-4. **Alarm:** Gözler `--sure` saniye (varsayılan 3) kapalı kalırsa alarm çalar. Ses, Windows/Mac'te **varsayılan ses çıkışından** çıkar, yani kulaklık takılıysa kulaklıktan. Ses %30'dan başlayıp ~10 saniyede en yükseğe çıkar, ekran kırmızı yanıp söner ve pencere öne gelir.
+4. **Alarm:** Gözler `--sure` saniye (varsayılan 3) kapalı kalırsa **veya yüzün `--yuz-yok` saniye (varsayılan 10) hiç görünmezse** (başın masaya düştüyse) alarm çalar. Ses, Windows/Mac'te **varsayılan ses çıkışından** çıkar, yani kulaklık takılıysa kulaklıktan. Ses %30'dan başlayıp ~10 saniyede en yükseğe çıkar, ekran kırmızı yanıp söner ve pencere öne gelir.
 5. **Susma:** Gözlerini 2 saniye açık tut → alarm susar. Ya da **BOŞLUK** tuşuna bas.
 
 ## Kurulum
@@ -31,7 +31,8 @@ Kendin exe üretmek istersen Windows'ta `exe_yap.bat`'a çift tıkla → `dist\U
 
 ```bash
 python uyan.py --sure 5            # 5 saniye göz kapalı kalınca çal
-python uyan.py --yuz-yok 15        # başın düşüp yüzün 15 sn görünmezse de çal
+python uyan.py --yuz-yok 20        # yüz 20 sn görünmezse çal (varsayılan 10)
+python uyan.py --yuz-yok 0         # yüz kaybolunca alarmı kapat
 python uyan.py --ses alarm.mp3     # kendi alarm sesini (mp3/wav/ogg) kullan
 python uyan.py --ses-seviyesi 0.6  # en yüksek ses seviyesi (0-1)
 python uyan.py --uyanik-sure 3     # alarmın susması için 3 sn gözler açık
@@ -52,6 +53,8 @@ Exe için de aynı: `UYAN.exe --sure 5 --yuz-yok 15`
 - Gözlük genelde sorun olmaz, parlama varsa `c` ile yeniden kalibre et.
 - Yanlış alarm çok oluyorsa `--sure` değerini artır; geç algılıyorsa `--esik 0.22` gibi daha yüksek bir eşik dene.
 - Bilgisayarın uyku moduna geçmesin (Güç ayarlarından "Ekranı kapatma / Uyku: Hiçbir zaman").
+- Masadan kalkacaksan programı kapat; yüzün görünmezse 10 sn sonra alarm çalar.
+- Program internete bağlanmaz ve Claude kullanmaz (sadece ilk açılışta, exe paketinde değilse, yüz modelini bir kez indirir).
 - Ses seviyesini sistemde de açık tut; program sistem sesini aşamaz.
 
 > ⚠️ Bu program sadece bir yardımcıdır; araç kullanırken ya da güvenliğin uyanık kalmana bağlıyken buna güvenme.

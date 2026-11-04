@@ -10,7 +10,7 @@ tuttugunda alarm kendiliginden susar.
 Kullanim:
     python uyan.py                 # varsayilan: 3 sn goz kapali -> alarm
     python uyan.py --sure 5        # 5 sn
-    python uyan.py --yuz-yok 15    # yuz 15 sn gorunmezse de alarm
+    python uyan.py --yuz-yok 15    # yuz 15 sn gorunmezse alarm (vars. 10, 0 = kapali)
     python uyan.py --ses alarm.mp3 # kendi alarm sesin
 
 Tuslar (kamera penceresi seciliyken):
@@ -231,7 +231,7 @@ def yazi(kare, metin, konum, renk=(255, 255, 255), olcek=0.7, kalinlik=2):
 def main():
     ap = argparse.ArgumentParser(description="Gozlerin kapaninca seni uyandiran alarm.")
     ap.add_argument("--sure", type=float, default=3.0, help="Kac saniye goz kapali kalinca alarm calsin (vars. 3)")
-    ap.add_argument("--yuz-yok", type=float, default=0, help="Yuz bu kadar saniye gorunmezse de alarm cal (0 = kapali)")
+    ap.add_argument("--yuz-yok", type=float, default=10, help="Yuz bu kadar saniye gorunmezse de alarm cal (vars. 10, 0 = kapali)")
     ap.add_argument("--uyanik-sure", type=float, default=2.0, help="Alarmin susmasi icin gozlerin kac sn acik kalmali (vars. 2)")
     ap.add_argument("--esik", type=float, default=None, help="Elle goz kapali esigi (EAR, orn. 0.2). Verilmezse otomatik kalibre edilir")
     ap.add_argument("--kamera", type=int, default=0, help="Kamera numarasi (vars. 0)")
