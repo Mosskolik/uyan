@@ -14,7 +14,8 @@ Kullanim:
     python uyan.py --ses alarm.mp3 # kendi alarm sesin
 
 Tuslar (kamera penceresi seciliyken):
-    q / ESC  : cikis
+    KAPAT dugmesi / q / ESC : cikis
+    SUSTUR dugmesi          : alarm calarken gorunur
     BOSLUK   : alarmi sustur
     c        : yeniden kalibre et
 """
@@ -228,6 +229,16 @@ def yazi(kare, metin, konum, renk=(255, 255, 255), olcek=0.7, kalinlik=2):
     cv2.putText(kare, metin, konum, cv2.FONT_HERSHEY_SIMPLEX, olcek, renk, kalinlik, cv2.LINE_AA)
 
 
+def buton_ciz(kare, metin, x1, y1, x2, y2, renk):
+    """Kareye tiklanabilir bir dugme cizer, koordinatlarini dondurur."""
+    cv2.rectangle(kare, (x1, y1), (x2, y2), renk, -1)
+    cv2.rectangle(kare, (x1, y1), (x2, y2), (255, 255, 255), 2)
+    (tw, th), _ = cv2.getTextSize(metin, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)
+    cv2.putText(kare, metin, (x1 + (x2 - x1 - tw) // 2, y1 + (y2 - y1 + th) // 2),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
+    return (x1, y1, x2, y2)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Gozlerin kapaninca seni uyandiran alarm.")
     ap.add_argument("--sure", type=float, default=3.0, help="Kac saniye goz kapali kalinca alarm calsin (vars. 3)")
@@ -252,6 +263,23 @@ def main():
     pencere = "UYAN"
     if not args.pencere_yok:
         cv2.namedWindow(pencere, cv2.WINDOW_NORMAL)
+
+    # Fare ile tiklanan dugmeler: {"kapat": (x1, y1, x2, y2), ...}
+    butonlar = {}
+    tiklanan = []
+
+    def fare(olay, x, y, *_):
+        if olay == cv2.EVENT_LBUTTONDOWN:
+            for ad, (x1, y1, x2, y2) in butonlar.items():
+                if x1 <= x <= x2 and y1 <= y <= y2:
+                    tiklanan.append(ad)
+
+    if not args.pencere_yok:
+        cv2.setMouseCallback(pencere, fare)
+
+    def kapat_butonu(kare):
+        w = kare.shape[1]
+        butonlar["kapat"] = buton_ciz(kare, "KAPAT", w - 130, 10, w - 10, 55, (50, 50, 50))
 
     # Haar zaten 0 / 0.3 verdigi icin sabit esik yeterli
     esik = args.esik if args.esik is not None else (0.15 if isinstance(algilayici, HaarAlgilayici) else None)
@@ -297,10 +325,13 @@ def main():
                 if not args.pencere_yok:
                     yazi(kare, "Kalibrasyon: gozlerin ACIK kameraya bak", (10, 30), (0, 255, 255))
                     yazi(kare, f"{max(0, kalan):.1f} sn" if yuz_var else "Yuz bulunamadi...", (10, 60), (0, 255, 255))
+                    butonlar.clear()
+                    kapat_butonu(kare)
                     cv2.imshow(pencere, kare)
                     tus = cv2.waitKey(1) & 0xFF
-                    if tus in (ord("q"), 27):
+                    if tus in (ord("q"), 27) or "kapat" in tiklanan:
                         break
+                    tiklanan.clear()
                 continue
 
             # ---- Durum takibi ----
@@ -352,7 +383,7 @@ def main():
                     kare = cv2.addWeighted(kare, 0.4, kirmizi, 0.6, 0)
                 if alarm.aktif:
                     yazi(kare, "UYAN!", (kare.shape[1] // 2 - 110, kare.shape[0] // 2), (255, 255, 255), 2.5, 6)
-                    yazi(kare, "Gozlerini acik tut ya da BOSLUK'a bas", (10, kare.shape[0] - 20), (255, 255, 255), 0.6)
+                    yazi(kare, "Gozlerini acik tut ya da SUSTUR'a bas", (10, kare.shape[0] - 20), (255, 255, 255), 0.6)
 
                 if not yuz_var:
                     durum, renk = "Yuz bulunamadi", (0, 165, 255)
@@ -365,11 +396,19 @@ def main():
                     yazi(kare, f"Goz acikligi: {ear:.3f}  esik: {esik:.3f}", (10, 60), (255, 255, 255), 0.55, 1)
                 yazi(kare, "q: cikis  bosluk: sustur  c: kalibre", (10, 85), (200, 200, 200), 0.5, 1)
 
+                butonlar.clear()
+                kapat_butonu(kare)
+                if alarm.aktif:
+                    h, w = kare.shape[:2]
+                    butonlar["sustur"] = buton_ciz(kare, "SUSTUR", w // 2 - 90, h - 110, w // 2 + 90, h - 55, (0, 140, 0))
+
                 cv2.imshow(pencere, kare)
                 tus = cv2.waitKey(1) & 0xFF
-                if tus in (ord("q"), 27):
+                tikla = set(tiklanan)
+                tiklanan.clear()
+                if tus in (ord("q"), 27) or "kapat" in tikla:
                     break
-                if tus == ord(" "):
+                if tus == ord(" ") or "sustur" in tikla:
                     alarm.durdur()
                     kapali_bas = None
                     susturma_bitis = simdi + 5  # 5 sn yeniden calma
