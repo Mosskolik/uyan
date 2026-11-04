@@ -8,7 +8,7 @@ Bilgisayarının kamerasıyla seni izler. **Gözlerin birkaç saniyeden uzun kap
 2. **Göz takibi:** Google MediaPipe yüz modeli yüzünde 478 nokta bulur. Göz kapaklarının arasındaki mesafeden *göz açıklığı oranı* (EAR) hesaplanır.
 3. **Kalibrasyon:** Program açılınca ilk 3 saniye gözlerin açık kameraya bak; senin gözüne göre "kapalı" eşiği otomatik ayarlanır.
 4. **Alarm:** Gözler `--sure` saniye (varsayılan 3) kapalı kalırsa **veya yüzün `--yuz-yok` saniye (varsayılan 10) hiç görünmezse** (başın masaya düştüyse) alarm çalar. Ses, Windows/Mac'te **varsayılan ses çıkışından** çıkar, yani kulaklık takılıysa kulaklıktan. Ses %30'dan başlayıp ~10 saniyede en yükseğe çıkar, ekran kırmızı yanıp söner ve pencere öne gelir.
-5. **Susma:** Gözlerini 2 saniye açık tut → alarm susar. Ya da **BOŞLUK** tuşuna bas.
+5. **Susma:** Gözlerini 2 saniye açık tut → alarm susar. Ya da ekrandaki **SUSTUR** düğmesine tıkla / **BOŞLUK** tuşuna bas. Programı kapatmak için sağ üstteki **KAPAT** düğmesine tıkla.
 
 ## Kurulum
 
@@ -43,7 +43,8 @@ Exe için de aynı: `UYAN.exe --sure 5 --yuz-yok 15`
 
 | Tuş | İşlev |
 |---|---|
-| `q` / `ESC` | Çıkış |
+| **KAPAT** düğmesi (sağ üst) / `q` / `ESC` | Çıkış |
+| **SUSTUR** düğmesi (alarm çalarken) | Alarmı sustur (5 sn tekrar çalmaz) |
 | `BOŞLUK` | Alarmı sustur (5 sn tekrar çalmaz) |
 | `c` | Yeniden kalibre et |
 
